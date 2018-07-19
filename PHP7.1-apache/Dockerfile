@@ -21,8 +21,8 @@ RUN apt-get update && apt-get install -y lsb-release \
       && cd .. \
       && rm -rf ImageMagick* \
     && a2enmod rewrite \
-    && docker-php-ext-install intl mbstring mysqli bcmath bz2 gd soap xmlrpc xsl pdo pdo_mysql fileinfo exif zip \
-    && docker-php-ext-enable intl mbstring mysqli bcmath bz2 gd soap xmlrpc xsl pdo pdo_mysql fileinfo exif zip \
+    && docker-php-ext-install intl mbstring mysqli bcmath bz2 gd soap xmlrpc xsl pdo pdo_mysql fileinfo exif zip opcache \
+    && docker-php-ext-enable intl mbstring mysqli bcmath bz2 gd soap xmlrpc xsl pdo pdo_mysql fileinfo exif zip  opcache \
     && pecl install redis imagick \
     && docker-php-ext-enable redis imagick \
     && docker-php-ext-configure imap --with-kerberos --with-imap-ssl \
@@ -88,6 +88,8 @@ COPY 001-ssl.conf /etc/apache2/sites-enabled
 
 RUN usermod -u 1000 www-data
 RUN usermod -G staff www-data
+
+RUN useradd joeconnor
 
 ENV APACHE_DOCUMENT_ROOT /var/www/html/web
 

@@ -1,5 +1,7 @@
 FROM phpdockerio/php7-fpm:latest
 
+MAINTAINER joe@authomedia.co.uk
+
 RUN apt-get update
 RUN echo 'deb http://packages.dotdeb.org jessie all' > /etc/apt/sources.list.d/dotdeb.list
 RUN apt-get -y --no-install-recommends install apt-transport-https

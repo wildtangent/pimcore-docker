@@ -1,7 +1,7 @@
-FROM wildtangent/myphpbuild:latest
+FROM wildtangent/pimcore:PHP7.1-apache
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-      autoconf automake libtool nasm make pkg-config libz-dev build-essential g++ libmagickwand-dev libmagickcore-dev \
+      autoconf automake libtool nasm make pkg-config libz-dev build-essential g++ \
     && pecl install xdebug \
     && docker-php-ext-install opcache \
     && docker-php-ext-enable xdebug opcache \

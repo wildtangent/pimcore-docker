@@ -1,14 +1,15 @@
-FROM dpfaffenbauer/pimcore:PHP7.2-apache
+FROM wildtangent/pimcore:PHP7.2-apache
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
       autoconf automake libtool nasm make pkg-config libz-dev build-essential g++ \
     && pecl install xdebug \
-    && docker-php-ext-enable xdebug \
+    && docker-php-ext-install opcache \
+    && docker-php-ext-enable xdebug opcache \
     && apt-get autoremove -y \
     && apt-get remove -y autoconf automake libtool nasm make pkg-config libz-dev build-essential g++ \
     && apt-get clean; rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/* ~/.composer
 
-RUN echo "xdebug.idekey = PHPSTORM" >> /usr/local/etc/php/conf.d/20-xdebug.ini && \
+RUN echo "xdebug.idekey = sublime.xdebug" >> /usr/local/etc/php/conf.d/20-xdebug.ini && \
     echo "xdebug.default_enable = 1" >> /usr/local/etc/php/conf.d/20-xdebug.ini && \
     echo "xdebug.remote_enable = 1" >> /usr/local/etc/php/conf.d/20-xdebug.ini && \
     echo "xdebug.remote_autostart = 1" >> /usr/local/etc/php/conf.d/20-xdebug.ini && \

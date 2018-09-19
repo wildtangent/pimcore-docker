@@ -10,6 +10,7 @@ RUN apt-get update && apt-get install -y lsb-release \
       zlib1g-dev libicu-dev libbz2-dev libpng-dev libc-client-dev \
       libkrb5-dev libxml2-dev libxslt1.1 libxslt1-dev locales locales-all \
       ffmpeg html2text ghostscript libreoffice pngcrush jpegoptim exiftool poppler-utils git wget \
+      libmagickwand-dev libmagickcore-dev \
       libx11-dev libjpeg-dev\
     && wget http://www.imagemagick.org/download/ImageMagick.tar.gz \
       && tar -xvf ImageMagick.tar.gz \
@@ -21,13 +22,14 @@ RUN apt-get update && apt-get install -y lsb-release \
       && cd .. \
       && rm -rf ImageMagick* \
     && a2enmod rewrite \
-    && docker-php-ext-install intl mbstring mysqli bcmath bz2 gd soap xmlrpc xsl pdo pdo_mysql fileinfo exif zip \
-    && docker-php-ext-enable intl mbstring mysqli bcmath bz2 gd soap xmlrpc xsl pdo pdo_mysql fileinfo exif zip \
+    && docker-php-ext-install intl mbstring mysqli bcmath bz2 gd soap xmlrpc xsl pdo pdo_mysql fileinfo exif zip opcache \
+    && docker-php-ext-enable intl mbstring mysqli bcmath bz2 gd soap xmlrpc xsl pdo pdo_mysql fileinfo exif zip opcache \
     && pecl install redis imagick \
     && docker-php-ext-enable redis imagick \
     && docker-php-ext-configure imap --with-kerberos --with-imap-ssl \
     && docker-php-ext-install imap \
     && docker-php-ext-enable imap \
+    && docker-php-ext-enable opcache \
     \
     && cd ~ \
     \
@@ -74,12 +76,24 @@ RUN apt-get update && apt-get install -y lsb-release \
       && touch /etc/apache2/ssl/localhost.crt \
       && openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/apache2/ssl/localhost.key \
         -subj '/C=UK/ST=London/L=London/O=Digital Web Ltd./CN=localhost/' -out /etc/apache2/ssl/localhost.crt \
-    && apt-get autoremove -y \ 
+      && chmod 600 /etc/apache2/ssl/* \
+      && apt-get autoremove -y \
       && apt-get remove -y autoconf automake libtool nasm make pkg-config libz-dev build-essential g++ \
       && apt-get clean; rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/* ~/.composer \
       && usermod -u 1000 www-data \
       && usermod -G staff www-data \
       && sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf \
-      && sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
+      && sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf \
+      && apt-get clean; rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/* ~/.composer
+
+COPY 001-ssl.conf /etc/apache2/sites-enabled
+
+RUN usermod -u 1000 www-data
+RUN usermod -G staff www-data
+
+RUN useradd joeconnor
+
+RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
+RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
 
 CMD ["apache2-foreground"]
